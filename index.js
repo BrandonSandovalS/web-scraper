@@ -1,7 +1,7 @@
 const puppeteer = require('puppeteer');
 
 (async () => {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({});
     const page = await browser.newPage();
 
     const navigationPromise = page.waitForNavigation({waitUntil: "domcontentloaded"});
@@ -28,21 +28,26 @@ const puppeteer = require('puppeteer');
     // Select the desired option in the dropdown
     await page.select('#SSR_CLSRCH_WRK_CRSE_ATTR\\$9', 'EGE');
 
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.screenshot({ path: 'page.png' });
+    await new Promise(r => setTimeout(r, 3000))
 
     // Get the values of all options
     const optionsValues = await page.$$eval('#SSR_CLSRCH_WRK_CRSE_ATTR_VALUE\\$9 option', options => options.map(option => option.textContent.trim()));
+    const labelOfOptions = await page.$$eval('#SSR_CLSRCH_WRK_CRSE_ATTR_VALUE\\$9 option', options => options.map(option => option.value.trim()));
+
 
     let courses = [];
+    let options = [];
     for (let i = 0; i < optionsValues.length; i++){
         let upperDivision = optionsValues[i].substring(0, 4);
         if(upperDivision == "GE U"){
             courses.push(optionsValues[i]);
+            options.push(labelOfOptions[i]);
             //console.log(optionsValues[i]);
         }
     }
-    
+    console.log(options);
+
+
 
     await browser.close();
 })();
