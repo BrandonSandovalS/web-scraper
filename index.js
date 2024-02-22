@@ -7,8 +7,10 @@ const puppeteer = require('puppeteer');
     const navigationPromise = page.waitForNavigation({waitUntil: "domcontentloaded"});
 
     await page.goto('https://cmsweb.cs.csueastbay.edu/psc/CEBPRDF/EMPLOYEE/SA/c/COMMUNITY_ACCESS.CLASS_SEARCH.GBL');
-
     await navigationPromise;
+
+    // Taking a screenshot of the 1st page
+    // await page.screenshot({ path: 'stage1.png' , fullPage: true});
 
     // Get the text content of the selected option in the dropdown menu
     const semester = await page.$eval('#CLASS_SRCH_WRK2_STRM\\$35\\$ option[selected="selected"]', el => el.textContent.trim());
@@ -27,6 +29,7 @@ const puppeteer = require('puppeteer');
 
     // Select the desired option in the dropdown
     await page.select('#SSR_CLSRCH_WRK_CRSE_ATTR\\$9', 'EGE');
+    await navigationPromise;
 
     await new Promise(r => setTimeout(r, 3000))
 
@@ -35,19 +38,30 @@ const puppeteer = require('puppeteer');
     const labelOfOptions = await page.$$eval('#SSR_CLSRCH_WRK_CRSE_ATTR_VALUE\\$9 option', options => options.map(option => option.value.trim()));
 
 
-    let courses = [];
-    let options = [];
+    let geNames = [];
+    let geValues = [];
     for (let i = 0; i < optionsValues.length; i++){
         let upperDivision = optionsValues[i].substring(0, 4);
         if(upperDivision == "GE U"){
-            courses.push(optionsValues[i]);
-            options.push(labelOfOptions[i]);
-            //console.log(optionsValues[i]);
+            geNames.push(optionsValues[i]);
+            geValues.push(labelOfOptions[i]);
         }
     }
-    console.log(options);
 
+    // Click the Course Attribute Value
+    await page.select('#SSR_CLSRCH_WRK_CRSE_ATTR_VALUE\\$9', geValues[2]);
+    await navigationPromise;
+    await new Promise(r => setTimeout(r, 3000))
 
+    // Takes a screenshot of the selected values
+    //await page.screenshot({ path: 'stage2.png' , fullPage: true});
+
+    await page.click('#CLASS_SRCH_WRK2_SSR_PB_CLASS_SRCH');
+    await navigationPromise;
+    await new Promise(r => setTimeout(r, 3000))
+    
+    // Take a screenshot of the second page
+    //await page.screenshot({ path: 'stage3.png' , fullPage: true});
 
     await browser.close();
 })();
