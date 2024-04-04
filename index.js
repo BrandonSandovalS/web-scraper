@@ -56,25 +56,73 @@ const puppeteer = require('puppeteer');
     await navigationPromise;
     await new Promise(r => setTimeout(r, 3000))
 
-
+    // This is the index for the group boxes of the classes
     let index = 0;
     while (true) {
+        // The selector will be the id for the clickable drop down plus the index for which one
         const selector = '#SSR_CLSRSLT_WRK_GROUPBOX2\\$' + index;
         try {
+            // This is used to wait for a little bit
             await new Promise(r => setTimeout(r, 500))
-            await page.click(selector); // Click the element
+            // This will click the selector (dropdown menu)
+            await page.click(selector);
+            // Increment index 
             index++;
         } catch (error) {
-            break; // Break out of the loop if the selector is not found
+            // Break out of the loop if the selector is not found
+            break; 
         }
     }
 
     await navigationPromise;
     await new Promise(r => setTimeout(r, 500))
-    await page.screenshot({ path: 'stage4(clicking all dropdown menus).png' , fullPage: true});
+    //await page.screenshot({ path: 'stage4(clicking all dropdown menus).png' , fullPage: true});
 
-    // click every drop down. then for each get campus, days & time, instructor, and room.
-    
+    /* Gets classname 
+    const classname = await page.$eval('#win0divSSR_CLSRCH_MTG1\\$1 > div', el => el.textContent.trim());
+
+    const campus = await page.$eval('#DERIVED_CLSRCH_DESCR\\$1', el => el.textContent.trim());
+
+    const daysTimes = await page.$eval('#MTG_DAYTIME\\$1', el => el.textContent.trim());
+
+    const professor = await page.$eval('#MTG_INSTR\\$1', el => el.textContent.trim());
+
+    const room = await page.$eval('#MTG_ROOM\\$1', el => el.textContent.trim());
+    */
+
+    let courses= [];
+    index = 0;
+    while (true) {
+        // The selector is only used to see if we reached the last course in the website
+        const selector = '#win0divSSR_CLSRCH_MTG1\\$' + index;
+        try {
+            // This is used to just get the course name
+            const classname = await page.$eval('#win0divSSR_CLSRCH_MTG1\\$' + index + '> div', el => el.textContent.trim());
+
+            // This is used to get in which campus it is in
+            const campus = await page.$eval('#DERIVED_CLSRCH_DESCR\\$' + index, el => el.textContent.trim());
+
+            // This is used to get on what day and time the specific course it is in.
+            const daysTimes = await page.$eval('#MTG_DAYTIME\\$' + index, el => el.textContent.trim());
+
+            // This is the professors name for the course
+            const professor = await page.$eval('#MTG_INSTR\\$' + index, el => el.textContent.trim());
+
+            // This is the room the course will be in
+            const room = await page.$eval('#MTG_ROOM\\$' + index, el => el.textContent.trim());
+
+            // This will be all the courses that matches the upper ge you are looking for.
+            courses.push([classname, campus, daysTimes, professor, room]);
+
+            // Increment index 
+            index++;
+        } catch (error) {
+            // Break out of the loop if the selector is not found
+            break; 
+        }
+    }
+
+    console.log(courses);
 
     await browser.close();
 })();
